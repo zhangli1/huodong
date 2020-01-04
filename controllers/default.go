@@ -97,11 +97,8 @@ func (c *MainController) Search() {
 
 //获取聊天消息，默认根据传上来的id取后面的数据
 func (c *MainController) GetLastMessage() {
-	r := c.Ctx.Request
-	fmt.Println("GetLastMessage", c.Ctx.Input.IP(), r.Header["User-Agent"])
-
 	Id := c.Input().Get("lastId")
-	fmt.Println(Id)
+	//fmt.Println(Id)
 	retData := models.SearchLastMessage(Id)
 
 	c.Data["json"] = retData
@@ -109,6 +106,8 @@ func (c *MainController) GetLastMessage() {
 }
 
 func (c *MainController) AddMessage() {
+	r := c.Ctx.Request
+	fmt.Println("AddMessage", c.Ctx.Input.IP(), r.Header["User-Agent"])
 	Content := c.Input().Get("content")
 	models.AddMessage(Content, c.Ctx.Input.IP())
 }
