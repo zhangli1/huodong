@@ -3,14 +3,15 @@
     <head>
         <meta charset="utf-8"/>
         <title>2k745</title>
+		<link rel="stylesheet" href="https://www.layuicdn.com/layui/css/layui.css" media="all">
         <style>
             h1{text-align:center;}
             .big-pic{border:1px solid black;text-align:center;width:100%;} 
 			.big-pic ul {padding:0 10px 5px;text-align:left;overflow:auto;display:block;height:90%}
 			.big-pic ul li {list-style:none;list-style-type:none;margin:0px;}
             .big-pic .pic-frame{border:1px solid red;display:inline-block;padding:5px;}
-			.big-pic .pic-frame-left{display:inline-block;float:left;width:28%;height:280;border:1px solid blue;}
-			.big-pic .pic-frame-right{padding:30px 5px;display:inline-block;float:right;width:28%;height:220;border:1px solid blue;}
+			.big-pic .pic-frame-left{display:inline-block;float:left;width:28%;height:260;}
+			.big-pic .pic-frame-right{padding:30px 5px;display:inline-block;float:right;width:28%;height:200;}
             .big-pic .pic-frame-right .send-content {height:70%;display:block;width:100%;margin-bottom:10px;}
 			.big-pic .pic-frame-right button {width:150px;float:right;margin-right:10px;}
 			
@@ -54,6 +55,7 @@
             <div class="footer"></div>
         </div>
     </body>
+	<script src="https://www.layuicdn.com/layui/layui.js"></script>
     <script>
         $('.user-click').click(function(){
             var id = $(this).parent('li').attr('id') 
@@ -68,7 +70,7 @@
         })
 		
 		//获取聊天消息
-		function getMessageList() {
+		/*function getMessageList() {
 			var lastId = $(".message ul li:last").attr('id');
 			$.ajax({
 			  url: "/getLastMessage",
@@ -88,7 +90,26 @@
 		}
 		getMessageList();
 		setInterval("getMessageList()","400");
+		*/
+		var sock = null;
+        var wsuri = "ws://127.0.0.1:10001/getMessage";
+        sock = new WebSocket(wsuri);
+        sock.onmessage = function(e) {
+			var msg = eval('(' + e.data + ')');
+			for(i in msg) {
+				//console.log(msg[i])
+				$(".message ul").append("<li id=" + msg[i].Id + ">"+ msg[i].Ip + ": " + msg[i].Content + "</li>");
+			}
+			var div = $(".message ul");
+			div[0].scrollTop = div[0].scrollHeight;
+        }
 		
+		setInterval(function(){
+			var lastId = $(".message ul li:last").attr('id');
+			sock.send(lastId);
+		},"800");
+		
+ 
 		//发送消息
 		$("#send").click(function(){
             var content = $(".send-content").val();
@@ -97,6 +118,12 @@
 			  url: "/addMessage",
 			  async: false,
 			  data: "content="+content,
+			  success: function(msg){
+				 layui.use(['layer'], function() {
+      			 	var layer = layui.layer;
+      				layer.msg('发送成功');
+    		    });
+			  }
 			 });
         })
     </script>

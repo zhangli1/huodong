@@ -23,6 +23,7 @@ type Message struct {
 }
 
 var o orm.Ormer
+var GlobalMessageListData []Message
 
 func init() {
 	orm.RegisterDriver("mysql", orm.DRMySQL)
@@ -69,8 +70,20 @@ func GetMaxCount() []Vote {
 //获取消息
 func SearchLastMessage(LastId string) []Message {
 	var messages []Message
+	if len(GlobalMessageListData) > 0 {
+		for _, v := range GlobalMessageListData {
+			if v.Id > glib.StringToInt(LastId) {
+				messages = append(messages, v)
+			}
+		}
+		return messages
+	}
+
 	num, err := o.Raw(fmt.Sprintf("select * from message where id > %s limit 1000", LastId)).QueryRows(&messages)
 	if err == nil && num > 0 {
+		if len(GlobalMessageListData) < 1 {
+			GlobalMessageListData = append(GlobalMessageListData, messages...)
+		}
 		return messages
 	}
 	return messages
@@ -90,4 +103,6 @@ func AddMessage(content string, ip string) {
 	} else {
 		fmt.Println(err)
 	}
+	message.Id = int(id)
+	GlobalMessageListData = append(GlobalMessageListData, message)
 }

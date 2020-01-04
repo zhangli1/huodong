@@ -110,4 +110,5 @@ func (c *MainController) AddMessage() {
 	fmt.Println("AddMessage", c.Ctx.Input.IP(), r.Header["User-Agent"])
 	Content := c.Input().Get("content")
 	models.AddMessage(Content, c.Ctx.Input.IP())
+	c.Ctx.ResponseWriter.WriteHeader(200)
 }
