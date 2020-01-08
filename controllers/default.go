@@ -39,14 +39,13 @@ func (c *MainController) Add() interface{} {
 	//先清除过期的数据
 	if len(SameRequestLimit) > 0 {
 		for i, v := range SameRequestLimit {
-			if v.Timestamp < glib.DateToTimestamp("Y-m-d", fmt.Sprintf("%s-%s-%s", time.Now().Year(), time.Now().Month(), time.Now().Day())) {
+			if v.Timestamp < glib.DateToTimestamp("2006-01-02", fmt.Sprintf("%s-%s-%s", time.Now().Format("2006"), time.Now().Format("01"), time.Now().Format("02"))) {
 				delete(SameRequestLimit, i)
 			}
 		}
 	}
 
-	var md5Sign string
-	md5Sign = models.Md5(fmt.Sprintf("%s,%d", r.Header["User-Agent"], Id))
+	md5Sign := models.Md5(fmt.Sprintf("%s,%d", r.Header["User-Agent"], Id))
 
 	if _, ok := SameRequestLimit[md5Sign]; ok && SameRequestLimit[md5Sign].Num >= 5 {
 		fmt.Println("超出限制", SameRequestLimit[md5Sign])
@@ -73,13 +72,14 @@ func (c *MainController) Add() interface{} {
 }
 
 func (c *MainController) Search() {
-	var QiNiuPath string
+	var QiNiuPath, WebsocketIp string
 	QiNiuPath = beego.AppConfig.String("imgPath")
+	WebsocketIp = beego.AppConfig.String("websocketIp")
 	//QiNiuPath = "http://or84xoiz8.bkt.clouddn.com/"
 	r := c.Ctx.Request
 	fmt.Println(c.Ctx.Input.IP(), r.Header["User-Agent"])
-	var mapData map[string]interface{}
-	mapData = make(map[string]interface{}, 4)
+
+	mapData := make(map[string]interface{}, 4)
 	data := models.SearchVote()
 
 	maxData := models.GetMaxCount()
@@ -92,6 +92,7 @@ func (c *MainController) Search() {
 	c.Data["MaxVote"] = mapData
 	c.Data["Votes"] = data
 	c.Data["QiNiuPath"] = "http://" + QiNiuPath
+	c.Data["WebsocketIp"] = WebsocketIp
 	c.TplName = "index.tpl"
 }
 

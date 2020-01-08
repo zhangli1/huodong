@@ -92,7 +92,7 @@
 		setInterval("getMessageList()","400");
 		*/
 		var sock = null;
-        var wsuri = "ws://127.0.0.1:10001/getMessage";
+        var wsuri = "ws://{{$.WebsocketIp}}:10001/getMessage";
         sock = new WebSocket(wsuri);
         sock.onmessage = function(e) {
 			var msg = eval('(' + e.data + ')');
@@ -113,6 +113,9 @@
 		//发送消息
 		$("#send").click(function(){
             var content = $(".send-content").val();
+			if(content == "") {
+				return false;
+			}
 			$.ajax({
 			  type:"post",
 			  url: "/addMessage",
@@ -121,7 +124,8 @@
 			  success: function(msg){
 				 layui.use(['layer'], function() {
       			 	var layer = layui.layer;
-      				layer.msg('发送成功');
+      				layer.msg('发送成功', {offset:'rt'});
+					$(".send-content").val("");
     		    });
 			  }
 			 });

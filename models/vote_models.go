@@ -4,6 +4,7 @@ import (
 	"fmt"
 	glib "lib"
 
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -27,7 +28,7 @@ var GlobalMessageListData []Message
 
 func init() {
 	orm.RegisterDriver("mysql", orm.DRMySQL)
-	orm.RegisterDataBase("default", "mysql", "root:PWD@tcp(127.0.0.1:3306)/huodong?charset=utf8")
+	orm.RegisterDataBase("default", "mysql", beego.AppConfig.String("mysql"))
 	// 需要在init中注册定义的model
 	orm.RegisterModel(new(Vote))
 	orm.RegisterModel(new(Message))
