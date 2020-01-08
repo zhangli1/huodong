@@ -1,0 +1,6 @@
+/bin
+/bin/*
+/pkg
+/pkg/*
+/conf
+/conf/*
